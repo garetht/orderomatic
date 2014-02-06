@@ -106,8 +106,9 @@ class FreshDirect
     elsif item["type"] == "product"
       input_hash['PRICE'] = /productPageSinglePrice.*(\$\d+\.\d+)/.match(rel_form)[1]
     end
-
+    print item
     input_hash[quantity_field] = item["qty"].empty? ? "1" : item["qty"]
+    input_hash["quantity"] = item["qty"].empty? ? "1" : item["qty"]
     hash_to_params input_hash
   end
 
