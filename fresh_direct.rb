@@ -59,20 +59,22 @@ class FreshDirect
   # 3. What are the post parameters required?
   def add_item item
     payload = parse_page item
-    if item["type"] == "category"
-      url = "#{FRESH_DIRECT_CATEGORY_URL}?#{URI.encode_www_form(item["args"])}"
-    elsif item["type"] == "product"
-      url = "#{FRESH_DIRECT_PRODUCT_URL}?#{URI.encode_www_form(item["args"])}"
+    unless payload.nil?
+      if item["type"] == "category"
+        url = "#{FRESH_DIRECT_CATEGORY_URL}?#{URI.encode_www_form(item["args"])}"
+      elsif item["type"] == "product"
+        url = "#{FRESH_DIRECT_PRODUCT_URL}?#{URI.encode_www_form(item["args"])}"
+      end
+      RestClient.post url,
+                      payload,
+                      {
+                        cookies: @session_cookies,
+                        origin: FRESH_DIRECT_BASE_URL,
+                        referer: url
+                      } do |a, b, c|
+                        # Ignore redirects
+                      end
     end
-    RestClient.post url,
-                    payload,
-                    {
-                      cookies: @session_cookies,
-                      origin: FRESH_DIRECT_BASE_URL,
-                      referer: url
-                    } do |a, b, c|
-                      # Ignore redirects
-                    end
   end
 
   def parse_page item
@@ -85,7 +87,10 @@ class FreshDirect
       quantity_field = FRESH_DIRECT_PRODUCT_QUANTITY_FIELD_NAME
     end
 
-    rel_form = regexp.match(html)[0]
+    match = regexp.match(html)
+    return nil if match.nil?
+
+    rel_form = match[0]
     root = Nokogiri::HTML(rel_form).root()
 
     input_fields = root.css('input')
