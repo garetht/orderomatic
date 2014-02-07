@@ -31,7 +31,7 @@ class FreshDirect
 
   def process_encodings(fd_array)
     fd_array.select do |fd|
-      fd["url"] =~ /https.+www\.freshdirect\.com/
+      fd["url"] =~ /https.+www\.freshdirect\.com.+(product|category)/
     end.map do |fd|
       new_url = URI.unescape(fd["url"])
       fd["url"] = new_url
